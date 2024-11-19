@@ -27,7 +27,8 @@ end
 
 %eccentricity
 e = cross(v1E, h)/mu - r1E / norm(r1E);
-e_hat = e/norm(e);
+e_mag = norm(e);
+e_hat = e/e_mag;
 
 %Low omega
 lowOmega = acosd(dot(n,e_hat));
@@ -42,6 +43,7 @@ i = acosd(dot(K,h)/norm(h));
 %E = v^2 / 2 - mu / r = -mu / 2a
 %a = (-mu / 2) / (v^2 / 2 - mu / r)
 a = (-mu / 2) / (norm(v1E)^2 / 2 - mu / norm(r1E));
+p = a*(1-e_mag^2);
 
 C_EP = dcm3(lowOmega) * dcm1(i) * dcm3(capOmega);
 
@@ -49,9 +51,43 @@ r1P = C_EP * r1E;
 v1P = C_EP * v1E;
 
 %time of periapsis passage
+theta = acosd(1/e_mag * (p/norm(r1P) - 1));
+if dot(r1P, v1P)<0
+    theta = -theta;
+end
+
+E1 = 2*atan(sqrt((1-e_mag)/(1+e_mag))*tand(theta/2));
+tp = t1 - sqrt(a^3/norm(r1P))* (E1 - sin(E1));
+T = 2*pi*sqrt(a^3/mu);
+while tp - t1 > 0 %Making sure tp is before t1 
+    tp = tp - T;
+end
 
 
+%Newton Raphson for t2 
+delta = 1 * 10^-4;
 
+M = sqrt(mu / a^3) * (t2-tp);
+f = @(x) x - e*sin(x) - M;
+fprime = @(x) 1-e*cos(x);
+Eold = M;
+error = delta * 2;
+while error > .001
+    Enew = Eold - f(Eold)/fprime(Eold);
+    error = abs(Eold - Enew);
+    Eold = Enew;
+end
+
+%Finding theta2, v2, r2
+E2 = Eold; 
+theta2 = atand(tan(E2/2) / sqrt((1-e_mag)/(1+e_mag)))*2;
+
+r2 = norm(h)^2 / (mu * (1+e_mag * cosd(theta2)));
+r2P = [r2*cosd(theta2);r2*sind(theta2);0];
+v2P = [-sqrt(mu/p) *sind(theta2); sqrt(mu/p)*(e_mag + cosd(theta2));0];
+
+r2E = C_EP' * r2P;
+v2E  = C_EP' * v2P;
 
 
 
