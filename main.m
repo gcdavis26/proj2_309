@@ -66,13 +66,12 @@ end
 
 %Newton Raphson for t2 
 delta = 1 * 10^-4;
-
 M = sqrt(mu / a^3) * (t2-tp);
-f = @(x) x - e*sin(x) - M;
-fprime = @(x) 1-e*cos(x);
+f = @(x) x - e_mag*sin(x) - M;
+fprime = @(x) 1-e_mag*cos(x);
 Eold = M;
 error = delta * 2;
-while error > .001
+while error > delta
     Enew = Eold - f(Eold)/fprime(Eold);
     error = abs(Eold - Enew);
     Eold = Enew;
@@ -86,9 +85,20 @@ r2 = norm(h)^2 / (mu * (1+e_mag * cosd(theta2)));
 r2P = [r2*cosd(theta2);r2*sind(theta2);0];
 v2P = [-sqrt(mu/p) *sind(theta2); sqrt(mu/p)*(e_mag + cosd(theta2));0];
 
+% Transforming back to perifocal
 r2E = C_EP' * r2P;
 v2E  = C_EP' * v2P;
 
+fprintf("a: %.6f km\n", a)
+fprintf("e: %.6f\n", e_mag)
+fprintf("i: %.6f degrees\n", i)
+fprintf("Ω: %.6f degrees\n", capOmega)
+fprintf("ω: %.6f degrees\n", lowOmega)
+fprintf("tp: %.6f seconds\n", tp)
+
+fprintf('C_EP = [%8.6f %8.6f %8.6f ] \n', C_EP(1,:), C_EP(2,:), C_EP(3,:) )
+fprintf('r2 in equitorial:  [.%6f, .%6f, %.6f] km\n', r2E)
+fprintf('v2 in quitorial:  [.%6f, .%6f, %.6f] km/s\n', v2E)
 
 
 function [dcm] = dcm1(angle)
