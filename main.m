@@ -28,10 +28,9 @@ end
 %eccentricity
 e = cross(v1E, h)/mu - r1E / norm(r1E);
 e_mag = norm(e);
-e_hat = e/e_mag;
 
 %Low omega
-lowOmega = acosd(dot(n,e_hat));
+lowOmega = acosd(dot(n,e)/e_mag);
 if dot(e,K) < 0 %Quadrant correction
     lowOmega = -lowOmega;
 end
@@ -97,8 +96,8 @@ fprintf("ω: %.6f degrees\n", lowOmega)
 fprintf("tp: %.6f seconds\n", tp)
 
 fprintf('C_EP = [%8.6f %8.6f %8.6f ] \n', C_EP(1,:), C_EP(2,:), C_EP(3,:) )
-fprintf('r2 in equitorial:  [.%6f, .%6f, %.6f] km\n', r2E)
-fprintf('v2 in quitorial:  [.%6f, .%6f, %.6f] km/s\n', v2E)
+fprintf('r2 in equitorial:  [%.6f, %.6f, %.6f] km\n', r2E)
+fprintf('v2 in equitorial:  [%.6f, %.6f, %.6f] km\n', v2E)
 
 
 function [dcm] = dcm1(angle)
